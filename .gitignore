@@ -162,3 +162,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+### Packr
+packrd
+*-packr.go
+

@@ -1,4 +1,4 @@
-module awesomeProject
+module RemoteExecution
 
 go 1.12
 
