@@ -57,7 +57,10 @@ func main(){
 			}
 			builder.WriteString(output)
 		}
-		respTmpl.Execute(resp, builder.String())
+		err = respTmpl.Execute(resp, builder.String())
+		if err != nil{
+			log.Println(err)
+		}
 		resp.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	}).Methods("POST").HeadersRegexp("Content-Type","multipart/form-data*")
 	// Handle Static index
