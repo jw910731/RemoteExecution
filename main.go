@@ -13,12 +13,21 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"strconv"
 )
-
+var port = 8787
 func main(){
+	var customPortFlag = false
 	if len(os.Args) < 2{
 		fmt.Fprintf(os.Stderr, "Not Enough Args\n")
 		os.Exit(1)
+	}
+	if len(os.Args) >= 3{
+		n, err := strconv.Atoi(os.Args[1])
+		if err == nil{
+			customPortFlag = true
+			port = n
+		}
 	}
 	box := packr.New("assets", "./assets")
 	indexPage, err := box.Find("index.html")
@@ -27,7 +36,12 @@ func main(){
 	fatal(err)
 	respTmpl, err := template.New("result").Parse(respRaw)
 	fatal(err)
-	progRun := handlerMaker(os.Args[1], os.Args[2:])
+	var progRun func(io.ReadCloser)(string,error)
+	if customPortFlag{
+		progRun = handlerMaker(os.Args[2], os.Args[3:])
+	}else{
+		progRun = handlerMaker(os.Args[1], os.Args[2:])
+	}
 	mux := mux.NewRouter()
 	// Handler Plain Text Post
 	mux.HandleFunc("/",func(resp http.ResponseWriter, req *http.Request){
@@ -67,7 +81,7 @@ func main(){
 	mux.HandleFunc("/", func(resp http.ResponseWriter, req *http.Request){
 		resp.Write(indexPage)
 	}).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8787", mux))
+	log.Fatal( http.ListenAndServe(fmt.Sprintf(":%d", port), mux) )
 }
 
 func handlerMaker(prog string, arg []string)func(io.ReadCloser)(string,error){
